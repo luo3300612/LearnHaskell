@@ -144,8 +144,100 @@ let xxs = [[1,3,5,2,3,1,2,4,5],[1,2,3,4,5,6,7,8,9],[1,2,4,2,1,6,3,1,3,2,3,6]]
 * snd 返回tuple的第二个元素
 * zip 产生一个tuple的列表，和python一样
 
-因为Haskell是lazy的，且zip的结果是根据短的那个列表，所以，可以这样写
+因为Haskell是lazy的，且zip的结果是取决于短的那个列表，所以，可以这样写
 ```Haskell
 zip [1..] ["apple", "orange", "cherry", "mango"]  
 ```
 
+## Types and Typeclasses
+Haskell has a static type system. The type of every expression is known at compile time
+
+与Java或Pascal不同，Haskell可以进行类型推导（type inference）
+
+查看类型
+```Haskell
+:t 'a'
+```
+
+函数也有类型，为函数写上类型是一个好习惯
+
+类型均以大写字母开头表示
+* Int，-2147483648~2147483647
+* Integer, no bound
+* Float
+* Double
+* Bool
+* Char
+
+==等运算符实际上是函数，所以也有类型
+```Haskell
+ghci> :t (==)  
+(==) :: (Eq a) => a -> a -> Bool  
+```
+前面的括号里是class constraint，限制了字母的类型
+
+一些基本的Typeclasses
+* Eq，为了检验相等的类
+* Ord，有ordering的类
+* Show，Show的成员可以打印成字符串
+  ```Haskell
+  ghci> show 3  
+  "3"  
+  ghci> show 5.334  
+  "5.334"  
+  ghci> show True  
+  "True"  
+  ```
+* Read与Show恰恰相反，read接受一个字符串然后返回一个Read的类型
+  ```Haskell
+  ghci> read "True" || False  
+  True  
+  ghci> read "8.2" + 3.8  
+  12.0  
+  ghci> read "5" - 2  
+  3  
+  ghci> read "[1,2,3,4]" ++ [3]  
+  [1,2,3,4,3]  
+  ```
+  可以通过加上类型来声明read的是什么类型来避免歧义
+  ```Haskell
+  ghci> read "5" :: Int  
+  5  
+  ghci> read "5" :: Float  
+  5.0  
+  ghci> (read "5" :: Float) * 4  
+  20.0  
+  ghci> read "[1,2,3,4]" :: [Int]  
+  [1,2,3,4]  
+  ghci> read "(3, 'a')" :: (Int, Char)  
+  (3, 'a')  
+  ```
+* Enum的成员是有序的序列类型
+* Bounded的成员有上界和下界
+  ```Haskell
+  ghci> minBound :: Int  
+  -2147483648  
+  ghci> maxBound :: Char  
+  '\1114111'  
+  ghci> maxBound :: Bool  
+  True  
+  ghci> minBound :: Bool  
+  False  
+  ```
+* Num的成员必须act like numbers
+  ```Haskell
+  ghci> 20 :: Int  
+  20  
+  ghci> 20 :: Integer  
+  20  
+  ghci> 20 :: Float  
+  20.0  
+  ghci> 20 :: Double  
+  20.0  
+  ```
+
+一个有用的函数`fromIntegral`，它可以将整数变成更general的数，比如
+```Haskell
+fromIntegral (length [1,2,3,4]) + 3.2
+```
+如果不这样就无法进行相加
